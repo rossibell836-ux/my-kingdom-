@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Kingdom</title>
+<style>
+:root{--bg:#fff8fc;--card:#fff;--text:#342832;--muted:#705f6a;--pink:#a94d78;--soft:#f6dce8;--border:#e8d2de}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+header{background:var(--soft);padding:20px;border-bottom:1px solid var(--border)}main{max-width:920px;margin:auto;padding:16px}
+h1{margin:0;font-size:30px}h2{font-size:23px}.panel,.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.stat{padding:12px;border:1px solid var(--border);border-radius:13px;background:#fffafd}
+label{display:block;font-weight:700;margin:9px 0 4px}input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #cdbbc5;border-radius:10px;background:white}
+button{border:2px solid var(--pink);color:var(--pink);background:white;border-radius:12px;padding:9px 13px;margin:4px;font-weight:650}button.primary{background:var(--pink);color:white}
+button:focus,input:focus,select:focus{outline:3px solid #78a7ff;outline-offset:2px}.tag{display:inline-block;background:var(--soft);border-radius:99px;padding:4px 9px;margin:3px}.notice{border-left:5px solid var(--pink);background:#fff3f8;padding:10px;margin:9px 0}.small{color:var(--muted)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header><h1>👑 My Kingdom</h1><p>A peaceful kingdom that grows with your decisions.</p></header>
+<main>
+<section id="creator" class="panel">
+<h2>👸 Create Your Ruler</h2>
+<p>Everything you choose here is saved with your kingdom.</p>
+<label for="rulerName">Name</label><input id="rulerName" placeholder="Your royal name">
+<label for="pronouns">Pronouns</label><select id="pronouns"><option>she/her</option><option>he/him</option><option>they/them</option></select>
+<div class="grid">
+<div><label for="skin">Skin tone</label><select id="skin"><option>Light</option><option>Fair</option><option>Medium</option><option>Tan</option><option>Deep</option></select></div>
+<div><label for="hair">Hair style</label><select id="hair"><option>Long waves</option><option>Long curls</option><option>Bob</option><option>Braids</option><option>Royal updo</option><option>Short</option></select></div>
+<div><label for="hairColor">Hair color</label><select id="hairColor"><option>Black</option><option>Brown</option><option>Blonde</option><option>Red</option><option>Pink</option><option>Purple</option><option>Blue</option></select></div>
+<div><label for="eyes">Eye color</label><select id="eyes"><option>Brown</option><option>Blue</option><option>Green</option><option>Hazel</option><option>Gray</option><option>Violet</option></select></div>
+<div><label for="dress">Dress</label><select id="dress"><option>Princess gown</option><option>Ball gown</option><option>Floral dress</option><option>Royal day dress</option><option>Elegant evening dress</option><option>Cloaked gown</option><option>Simple dress</option></select></div>
+<div><label for="dressColor">Dress color</label><select id="dressColor"><option>Pink</option><option>Rose</option><option>Lavender</option><option>Blue</option><option>Mint</option><option>Peach</option><option>Red</option><option>Gold</option><option>Silver</option><option>White</option><option>Black</option></select></div>
+<div><label for="shoes">Shoes</label><select id="shoes"><option>Royal heels</option><option>Flats</option><option>Boots</option><option>Sandals</option><option>Slippers</option></select></div>
+<div><label for="jewelry">Jewelry</label><select id="jewelry"><option>Pearl set</option><option>Ruby set</option><option>Emerald set</option><option>Sapphire set</option><option>Diamond set</option><option>Gold set</option><option>Silver set</option><option>None</option></select></div>
+<div><label for="makeup">Makeup</label><select id="makeup"><option>None</option><option>Natural</option><option>Soft pink</option><option>Rose</option><option>Glam</option><option>Royal evening</option></select></div>
+<div><label for="crown">Crown</label><select id="crown"><option>Silver with pink gems</option><option>Gold with pink gems</option><option>Gold with blue gems</option><option>Rose gold with diamonds</option><option>Silver with sapphires</option><option>Floral crown</option><option>Simple tiara</option></select></div>
+</div>
+<button class="primary" onclick="startKingdom()">Begin My Kingdom</button>
+</section>
+
+<section id="game" class="hidden">
+<div class="panel" aria-live="polite"><h2 id="welcome"></h2><p id="dayline"></p><div id="stats" class="grid"></div></div>
+
+<div class="panel"><h2>📜 Royal Requests</h2><div id="requests"></div></div>
+<div class="panel"><h2>🏘️ Places</h2><div id="places" class="grid"></div></div>
+<div class="panel"><h2>👥 Citizens & Workers</h2><div id="citizens"></div>
+<div>
+<button onclick="hire('Farmhand')">Hire farmhand — 20/day</button>
+<button onclick="hire('Forester')">Hire forester — 18/day</button>
+<button onclick="hire('Animal keeper')">Hire animal keeper — 22/day</button>
+<button onclick="hire('Builder')">Hire builder — 25/day</button>
+</div></div>
+
+<div class="panel"><h2>🌾 Farm</h2><div id="farm"></div>
+<button onclick="plant('Carrots')">Plant carrots — 2 coins</button>
+<button onclick="plant('Wheat')">Plant wheat — 2 coins</button></div>
+
+<div class="panel"><h2>🧰 Resources</h2><div id="resources"></div></div>
+<div class="panel"><h2>💌 Royal Mail</h2><div id="mail"></div></div>
+<div class="panel"><h2>📅 Next Day</h2>
+<p>Workers work, crops grow, citizens live their lives, new residents can move in, and citizens may request new places and jobs.</p>
+<button class="primary" onclick="nextDay()">End Day</button>
+<button onclick="resetKingdom()">Reset kingdom</button></div>
+</section>
+</main>
+
+<script>
+const pool=[
+["Bakery","Our town would love fresh bread. May we open a bakery?","Baker"],
+["Flower Shop","People are asking for flowers and garden supplies.","Florist"],
+["Clothing Boutique","Citizens would like a place to buy beautiful clothes.","Clothing seller"],
+["Jewelry Store","A jeweler would like to set up a shop.","Jeweler"],
+["Hair Salon","Several citizens want a salon for hair and styling.","Stylist"],
+["Beauty Salon","Citizens have requested makeup and beauty services.","Beauty specialist"],
+["Veterinarian","With more animals arriving, the kingdom needs animal medical care.","Veterinarian"],
+["School","Families would like a school for the children.","Teacher"],
+["Library","Readers have asked for a library.","Librarian"],
+["Café","People want a cozy place to meet and relax.","Café worker"],
+["Restaurant","A chef would like to open a restaurant.","Chef"],
+["Inn","Travelers need somewhere to stay overnight.","Innkeeper"],
+["Bank","Citizens want a safe place for savings and trade.","Banker"],
+["Doctor's Office","The growing town needs basic medical care.","Doctor"],
+["Dentist","Citizens have requested dental care.","Dentist"],
+["Pet Shop","Animal lovers want a place for supplies and adoption.","Pet shop worker"],
+["Stable","People would like horses and a proper stable.","Stable hand"],
+["Spa","Citizens are asking for a relaxing spa.","Spa worker"],
+["Theater","A performer wants to build a theater.","Performer"],
+["Toy Store","Families would love a shop full of toys.","Toy seller"],
+["Hardware Store","Builders need somewhere to buy tools and materials.","Hardware clerk"],
+["Garden Center","Gardeners want seeds, tools, and plants.","Garden center worker"],
+["Playground","Children need somewhere safe to play.","Playground caretaker"],
+["Park","Citizens would like a beautiful green space.","Gardener"]
+];
+
+const fresh=()=>({
+day:1,name:"",pronouns:"she/her",appearance:{},coins:1000,food:50,wood:30,stone:20,happiness:80,
+population:5,houses:3,places:["Castle","Town Square","General Store","Farm"],workers:[],
+citizens:[
+{name:"Amelia Rivera",job:"Baker"},{name:"Marco Rivera",job:"Carpenter"},
+{name:"Sofia Rivera",job:"Student"},{name:"Lena Brooks",job:"Farmer"},{name:"Noah Brooks",job:"Farmer"}],
+animals:[{name:"Clover",type:"Chicken",needs:true},{name:"Poppy",type:"Chicken",needs:true},{name:"Daisy",type:"Cow",needs:true}],
+crops:[],requests:[],mail:["Welcome, Your Majesty! Your citizens are excited to see what you build."]
+});
+let S=JSON.parse(localStorage.getItem("myKingdom")||"null")||fresh();
+
+function save(){localStorage.setItem("myKingdom",JSON.stringify(S))}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function startKingdom(){
+S.name=document.getElementById("rulerName").value.trim()||"Rossi";
+S.pronouns=document.getElementById("pronouns").value;
+S.appearance={skin:skin.value,hair:hair.value,hairColor:hairColor.value,eyes:eyes.value,dress:dress.value,dressColor:dressColor.value,shoes:shoes.value,jewelry:jewelry.value,makeup:makeup.value,crown:crown.value};
+save();creator.classList.add("hidden");game.classList.remove("hidden");render();
+}
+function render(){
+welcome.textContent=`Welcome, ${S.name}! 👑`;
+dayline.textContent=`Day ${S.day} • ${S.population} citizens • Your kingdom is growing naturally.`;
+stats.innerHTML=[
+["💰","Treasury",S.coins+" coins"],["😊","Happiness",S.happiness+"%"],["👥","Population",S.population],
+["🏠","Homes",S.houses],["🌾","Food",S.food],["🪵","Wood",S.wood],["🪨","Stone",S.stone]
+].map(x=>`<div class="stat"><b>${x[0]} ${x[1]}</b><br>${x[2]}</div>`).join("");
+places.innerHTML=S.places.map(p=>`<div class="card"><b>${esc(p)}</b><br><span class="small">Part of your kingdom</span></div>`).join("");
+citizens.innerHTML=`<p><b>Residents:</b> ${S.citizens.map(c=>`${esc(c.name)} — ${esc(c.job)}`).join(" • ")}</p><p><b>Royal workers:</b> ${S.workers.length?S.workers.map(w=>`${esc(w.name)} (${esc(w.job)})`).join(" • "):"None hired yet."}</p>`;
+farm.innerHTML=`<p><b>Animals:</b> ${S.animals.map(a=>`${esc(a.name)} the ${esc(a.type)} — ${a.needs?"needs care":"cared for"}`).join(" • ")}</p><p><b>Crops:</b> ${S.crops.length?S.crops.map(c=>`${esc(c.type)} (${c.age}/3 days)`).join(" • "):"No crops planted."}</p>`;
+resources.innerHTML=`<span class="tag">Food ${S.food}</span><span class="tag">Wood ${S.wood}</span><span class="tag">Stone ${S.stone}</span>`;
+mail.innerHTML=S.mail.slice(-8).reverse().map(m=>`<div class="notice">${esc(m)}</div>`).join("");
+requests.innerHTML=S.requests.length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve & unlock ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
+save();
+}
+function hire(job){
+const cost={Farmhand:20,Forester:18,"Animal keeper":22,Builder:25}[job];
+if(S.coins<cost){S.mail.push(`The treasury cannot afford a ${job} today.`);render();return}
+S.coins-=cost;
+const names=["Elena","Mira","Julian","Rose","Theo","Nora","Lily","Adrian"];
+const surnames=["Rivera","Brooks","Carter","Reyes","Morgan"];
+const name=names[Math.floor(Math.random()*names.length)]+" "+surnames[Math.floor(Math.random()*surnames.length)];
+S.workers.push({name,job});S.mail.push(`${name} has been hired as a ${job}.`);render();
+}
+function plant(type){
+if(S.coins<2){S.mail.push("You need 2 coins to plant a crop.");render();return}
+S.coins-=2;S.crops.push({type,age:0});S.mail.push(`${type} was planted.`);render();
+}
+function approve(i){
+const r=S.requests[i];S.places.push(r[0]);S.citizens.push({name:"New local",job:r[2]});
+S.requests.splice(i,1);S.happiness=Math.min(100,S.happiness+2);
+S.mail.push(`${r[0]} has opened! A new ${r[2]} job is now available.`);render();
+}
+function decline(i){const r=S.requests[i];S.requests.splice(i,1);S.mail.push(`You asked the ${r[0].toLowerCase()} idea to wait. It may return later.`);render()}
+function maybeRequest(){
+const available=pool.filter(r=>!S.places.includes(r[0])&&!S.requests.some(q=>q[0]===r[0]));
+if(available.length&&Math.random()<0.65)S.requests.push(available[Math.floor(Math.random()*available.length)]);
+}
+function nextDay(){
+S.day++;
+const wages=S.workers.reduce((n,w)=>n+({Farmhand:20,Forester:18,"Animal keeper":22,Builder:25}[w.job]||15),0);
+S.coins=Math.max(0,S.coins+35-wages);
+if(S.workers.some(w=>w.job==="Forester"))S.wood+=5;
+if(S.workers.some(w=>w.job==="Builder"))S.stone+=3;
+if(S.workers.some(w=>w.job==="Animal keeper"))S.animals.forEach(a=>a.needs=false);
+if(S.workers.some(w=>w.job==="Farmhand"))S.crops.forEach(c=>c.age++);
+S.crops.forEach(c=>{if(c.age>=3){S.food+=5;S.mail.push(`${c.type} was harvested and added to the food stores.`)}});S.crops=S.crops.filter(c=>c.age<3);
+S.food=Math.max(0,S.food-2);
+
+let attraction=S.happiness+S.places.length*2;
+if(S.houses>S.population/2&&attraction>88&&Math.random()<0.7){
+const first=["Mia","Luna","Sofia","Elena","Noah","Leo","Isla","Oliver"],last=["Rivera","Brooks","Carter","Morgan","Bennett"];
+const n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];
+if(!S.citizens.some(c=>c.name===n)){S.citizens.push({name:n,job:"Resident"});S.population++;S.mail.push(`${n} has moved into your kingdom. Welcome!`)}
+}
+if(S.population>S.houses*3&&S.coins>=100){S.houses++;S.coins-=100;S.mail.push("The growing population led to a new house being built.");}
+if(Math.random()<0.5)maybeRequest();
+if(S.animals.some(a=>a.needs)&&!S.workers.some(w=>w.job==="Animal keeper"))S.happiness=Math.max(0,S.happiness-1);
+render();
+}
+function resetKingdom(){if(confirm("Delete this kingdom and start over?")){localStorage.removeItem("myKingdom");location.reload()}}
+if(S.name){creator.classList.add("hidden");game.classList.remove("hidden");render()}
+</script>
+</body>
+</html>

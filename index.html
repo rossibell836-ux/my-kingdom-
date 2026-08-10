@@ -95,90 +95,19 @@ function updateCreatorPreview(){let a=getAppearance();creatorPreview.innerHTML=`
 document.querySelectorAll("#creator select").forEach(x=>x.addEventListener("change",updateCreatorPreview));
 function startKingdom(){S.name=rulerName.value.trim()||"Rossi";S.pronouns=pronouns.value;S.appearance=getAppearance();save();creator.classList.add("hidden");game.classList.remove("hidden");render()}
 function render(){
-welcome.textContent=`Welcome, ${S.name}! 👑`;dayline.textContent=`Day ${S.day} • ${S.population} citizens • Your kingdom is growing naturally.`;
+welcome.textContent=`Welcome, ${S.name}! 👑`; dayline.textContent=`Day ${S.day} • ${S.population} citizens • Your kingdom is growing naturally.`;
 stats.innerHTML=[["💰","Treasury",S.coins+" coins"],["😊","Happiness",S.happiness+"%"],["👥","Population",S.population],["🏠","Homes",S.houses],["🌾","Food",S.food],["🪵","Wood",S.wood],["🪨","Stone",S.stone]].map(x=>`<div class="stat"><b>${x[0]} ${x[1]}</b><br>${x[2]}</div>`).join("");
-let a=S.appearance||{};avatar.innerHTML=`<div class="avatar-doll" role="img" aria-label="${esc(S.name)}, ${esc(a.eyes||"Dark Brown")} eyes, ${esc(a.dressColor||"Pink")} ${esc(a.dress||"Princess gown")}, wearing ${esc(a.crown||"Simple tiara")}"><div class="doll-head">👸</div><div class="doll-outfit">👗</div><div class="doll-accessories">👠 💎 👑</div><b>${esc(S.name)}</b><br><span class="small">👁️ ${esc(a.eyes||"Dark Brown")} eyes • ${esc(a.dressColor||"Pink")} ${esc(a.dress||"Princess gown")}</span></div>`;
-places.innerHTML=S.places.map((p,i)=>`<div class="card"><button class="place-btn" onclick="visitPlace(${i})" aria-label="Visit ${esc(p)}"><strong>${placeIcons[p]||"🏡"} ${esc(p)}</strong><span>Activate to visit this place</span></button></div>`).join("");
-kingdomMap.innerHTML=S.places.map((p,i)=>`<button class="map-place" onclick="visitPlace(${i})" aria-label="Visit ${esc(p)} on the kingdom map"><span class="icon">${placeIcons[p]||"🏡"}</span><small>${esc(p)}</small></button>`).join("");
-households.innerHTML=S.households.map(h=>`<div class="house-card"><div class="house-icon">🏠</div><h3>${esc(h.name)}</h3><p>${h.members.length ? h.members.map(x=>`<span class="tag">👤 ${esc(x)}</span>`).join("") : '<span class="small">Available home</span>'}</p></div>`).join("");
-citizens.innerHTML=`<p><b>Residents:</b> ${S.citizens.map(c=>`${esc(c.name)} — ${esc(c.job)}`).join(" • ")}</p><p><b>Royal workers:</b> ${S.workers.length?S.workers.map(w=>`${esc(w.name)} (${esc(w.job)})`).join(" • "):"None hired yet."}</p>`;
-farm.innerHTML=`<div class="scene-art" aria-hidden="true">🌾 🐔 🐄 🥕 🌻</div><p><b>Animals:</b> ${S.animals.map(x=>`${esc(x.name)} the ${esc(x.type)} — ${x.needs?"needs care":"cared for"}`).join(" • ")}</p><p><b>Crops:</b> ${S.crops.length?S.crops.map(x=>`${esc(x.type)} (${x.age}/3 days)`).join(" • "):"No crops planted."}</p>`;
+let a=S.appearance||{}; avatar.innerHTML=`<div class="avatar-doll"><div class="doll-head">👸</div><div class="doll-outfit">👗</div><div class="doll-accessories">👠 💎 👑</div><b>${esc(S.name)}</b><br><span class="small">👁️ ${esc(a.eyes||"Dark Brown")} eyes • ${esc(a.dressColor||"Pink")} ${esc(a.dress||"Princess gown")} • 👠 ${esc(a.shoes||"Royal heels")} • 💎 ${esc(a.jewelry||"Pearl set")}</span></div>`;
+places.innerHTML=S.places.map((pl,i)=>`<div class="card"><button class="place-btn" onclick="visitPlace(${i})" aria-label="Visit ${esc(pl)}"><strong>${placeIcons[pl]||"🏡"} ${esc(pl)}</strong><span>Activate to visit this place</span></button></div>`).join("");
+kingdomMap.innerHTML=S.places.map((pl,i)=>`<button class="map-place" onclick="visitPlace(${i})" aria-label="Visit ${esc(pl)} on the kingdom map"><span class="icon">${placeIcons[pl]||"🏡"}</span><small>${esc(pl)}</small></button>`).join("");
+households.innerHTML=(S.households||[]).map(h=>`<div class="house-card"><div class="house-icon">🏠</div><h3>${esc(h.name)}</h3><p>${h.members&&h.members.length?h.members.map(x=>`<span class="tag">👤 ${esc(x)}</span>`).join(""):"<span class="small">Available home</span>"}</p></div>`).join("")||"<p>No households yet.</p>";
+citizens.innerHTML=`<p><b>Residents:</b> ${(S.citizens||[]).length?S.citizens.map(c=>`${esc(c.name)} — ${esc(c.job)}`).join(" • "):"No residents yet."}</p><p><b>Royal workers:</b> ${(S.workers||[]).length?S.workers.map(w=>`${esc(w.name)} (${esc(w.job)})`).join(" • "):"None hired yet."}</p>`;
+farm.innerHTML=`<div class="scene-art" aria-hidden="true">🌾 🐔 🐄 🥕 🌻</div><p><b>Animals:</b> ${(S.animals||[]).length?S.animals.map(x=>`${esc(x.name)} the ${esc(x.type)} — ${x.needs?"needs care":"cared for"}`).join(" • "):"No animals yet."}</p><p><b>Crops:</b> ${(S.crops||[]).length?S.crops.map(x=>`${esc(x.type)} (${x.age}/3 days)`).join(" • "):"No crops planted."}</p>`;
 resources.innerHTML=`<div class="visual-row"><span class="tag">🌾 Food ${S.food}</span><span class="tag">🪵 Wood ${S.wood}</span><span class="tag">🪨 Stone ${S.stone}</span></div>`;
-renderGarden();renderRelationships();mail.innerHTML=S.mail.slice(-8).reverse().map(x=>`<div class="notice">${esc(x)}</div>`).join("");
-requests.innerHTML=S.requests.length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve and unlock ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
-save()
+mail.innerHTML=(S.mail||[]).slice(-8).reverse().map(x=>`<div class="notice">${esc(x)}</div>`).join("")||"<p>No royal mail yet.</p>";
+requests.innerHTML=(S.requests||[]).length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve and unlock ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
+renderGarden(); renderRelationships(); save();
 }
-
-const flowerTypes=[
- ["Rose","🌹","pink, red, white, yellow and peach"],
- ["Tulip","🌷","pink, red, yellow, orange and purple"],
- ["Daisy","🌼","white and yellow"],
- ["Sunflower","🌻","golden yellow"],
- ["Lily","🪷","pink, white and purple"],
- ["Lavender","💜","soft purple"],
- ["Hydrangea","💠","blue, pink, purple and white"],
- ["Peony","🌸","pink, coral, white and red"],
- ["Daffodil","🌼","yellow and white"],
- ["Iris","💠","blue, purple and yellow"],
- ["Marigold","🏵️","orange and gold"],
- ["Cherry blossom","🌸","soft pink and white"],
- ["Pansy","🌺","purple, yellow, blue and pink"],
- ["Carnation","🌺","pink, red and white"],
- ["Orchid","🌺","pink, purple, white and yellow"],
- ["Violet","💜","violet and purple"]
-];
-
-function renderGarden(){
- if(!S.garden)S.garden=[];
- garden.innerHTML=`<p>Plant flowers and build your royal garden. Each type can have several colors.</p>
- <div class="grid">${flowerTypes.map((f,i)=>`<div class="flower"><span class="flower-icon">${f[1]}</span><b>${f[0]}</b><span class="small">${f[2]}</span><button onclick="plantFlower(${i})">Plant</button></div>`).join("")}</div>
- <p><b>Your garden:</b> ${S.garden.length?S.garden.map(f=>`${f.icon} ${esc(f.name)} (${esc(f.color)})`).join(" • "):"No flowers planted yet."}</p>`;
-}
-function plantFlower(i){
- const f=flowerTypes[i], colors=f[2].split(" and ").flatMap(x=>x.split(", "));
- const color=colors[Math.floor(Math.random()*colors.length)];
- S.garden.push({name:f[0],icon:f[1],color});
- S.mail.push(`${f[0]} flowers were planted in the royal garden.`);
- S.happiness=Math.min(100,S.happiness+1); render();
-}
-
-function renderRelationships(){
- if(!S.relationships)S.relationships=[];
- const romantic=S.relationships.filter(r=>r.type==="romance");
- relationships.innerHTML=`<p>Citizens naturally become friends, close companions, and sometimes romantic partners as they spend time together.</p>
- ${S.relationships.length?S.relationships.map(r=>`<div class="relationship-card">${r.icon||"💕"} <b>${esc(r.a)}</b> ${esc(r.label)} <b>${esc(r.b)}</b><br><span class="small">${esc(r.type)}</span></div>`).join(""):"<p>No special relationships yet. Give the kingdom time to grow. 💕</p>"}`;
-}
-function relationshipTick(){
- if(!S.relationships)S.relationships=[];
- const eligible=S.citizens.filter(c=>c.job!=="Student" || S.day>10);
- if(eligible.length<2 || Math.random()>.55)return;
- const a=eligible[Math.floor(Math.random()*eligible.length)];
- const b=eligible[Math.floor(Math.random()*eligible.length)];
- if(!a||!b||a.name===b.name)return;
- const exists=S.relationships.some(r=>(r.a===a.name&&r.b===b.name)||(r.a===b.name&&r.b===a.name));
- if(exists)return;
- const romance=Math.random()<.35;
- S.relationships.push({a:a.name,b:b.name,type:romance?"romance":"friendship",icon:romance?"💕":"🤝",label:romance?"and "+(Math.random()<.5?"fell in love with":"started dating")+"":"became friends with"});
- S.mail.push(romance?`${a.name} and ${b.name} have started a romantic relationship. 💕`:`${a.name} and ${b.name} became friends. 🤝`);
-}
-function editCharacter(){
- creator.classList.remove("hidden");game.classList.add("hidden");
- rulerName.value=S.name;pronouns.value=S.pronouns;
- const a=S.appearance||{};
- ["skin","hair","hairColor","eyes","dress","dressColor","shoes","jewelry","makeup","crown"].forEach(k=>{if(window[k]&&a[k])window[k].value=a[k]});
- updateCreatorPreview();
- const btn=document.querySelector("#creator .primary");
- btn.textContent="Save character changes";
- btn.onclick=saveCharacterChanges;
-}
-function saveCharacterChanges(){
- S.name=rulerName.value.trim()||S.name||"Rossi";S.pronouns=pronouns.value;S.appearance=getAppearance();
- creator.classList.add("hidden");game.classList.remove("hidden");
- const btn=document.querySelector("#creator .primary");btn.textContent="Begin My Kingdom";btn.onclick=startKingdom;
- S.mail.push("Your royal character has been updated.");
- render();
-}
-
 function sceneEmoji(p){return({"Castle":"🏰🌷👑","Town Square":"⛲🌳🧺","General Store":"🏪🛍️📦","Farm":"🌾🐄🐔","Veterinarian":"🐾🩺🐶","Library":"📚🕯️🌿","Hardware Store":"🔨🪵🧰","Stable":"🐴🌾🪣"}[p]||"🏡🌸✨")}
 function visitPlace(i){let p=S.places[i],info=placeInfo[p]||{text:`${p} is open and part of your growing kingdom.`,rooms:["Main area","Services","Citizen area"]};locationPanel.classList.remove("hidden");locationPanel.innerHTML=`<div class="scene-art" aria-hidden="true">${sceneEmoji(p)}</div><h2>📍 ${esc(p)}</h2><p>${esc(info.text)}</p>${info.rooms.map(r=>`<div class="room"><button onclick="useRoom('${esc(p)}','${esc(r)}')">Open ${esc(r)}</button></div>`).join("")}<button class="primary" onclick="locationPanel.classList.add('hidden')">Leave ${esc(p)}</button>`;locationPanel.focus();S.mail.push(`You visited ${p}.`);save()}
 function useRoom(place,room){let msg=room==="Treasury"?`The treasury contains ${S.coins} coins.`:room==="Wardrobe"?`Your current outfit is a ${S.appearance.dressColor} ${S.appearance.dress}.`:room==="Jewelry Room"?`Your jewelry collection currently includes your ${S.appearance.jewelry}.`:room==="Farm Status"?`Your farm has ${S.animals.length} animals and ${S.crops.length} growing crop plot(s).`:room==="Royal Garden"?`Your royal garden has ${S.garden?.length||0} flowers planted. You can manage all flower types in the Royal Garden section.`:`You are in the ${room} at the ${place}.`;S.mail.push(`${place}: ${msg}`);render();visitPlace(S.places.indexOf(place))}

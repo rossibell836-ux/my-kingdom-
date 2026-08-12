@@ -29,6 +29,7 @@ button.primary{background:var(--pink);color:#fff}button:focus,input:focus,select
 
 .flower{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:110px;min-height:90px;margin:5px;border:1px solid var(--border);border-radius:14px;background:#fffafd}
 .flower-icon{font-size:35px}.relationship-card{border:1px solid var(--border);border-radius:14px;padding:12px;margin:8px 0;background:#fffafd}
+.job-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -58,11 +59,11 @@ button.primary{background:var(--pink);color:#fff}button:focus,input:focus,select
 <div class="panel" aria-live="polite"><h2 id="welcome"></h2><p id="dayline"></p><div id="stats" class="grid"></div></div>
 <div class="panel"><h2>👸 Your Ruler</h2><div id="avatar"></div><button class="primary" onclick="editCharacter()">✏️ Edit my character</button></div>
 <div class="panel"><h2>🗺️ Kingdom Map</h2><div id="kingdomMap" class="map"></div></div>
-<div class="panel"><h2>📜 Royal Requests</h2><div id="requests"></div></div>
+<div class="panel"><h2>💰 Royal Income</h2><div id="income"></div></div><div class="panel"><h2>😊 Make Your People Happy</h2><div id="happinessActions"></div></div><div class="panel"><h2>👑 Royal Needs</h2><div id="royalNeeds"></div></div><div class="panel"><h2>📜 Royal Requests</h2><div id="requests"></div></div>
 <div class="panel"><h2>🏘️ Places</h2><div id="places" class="grid"></div></div>
 <div id="locationPanel" class="location-panel hidden" tabindex="-1"></div>
 <div class="panel"><h2>🏠 Households</h2><div id="households"></div></div>
-<div class="panel"><h2>💕 Relationships</h2><div id="relationships"></div></div><div class="panel"><h2>🌷 Royal Garden</h2><div id="garden"></div><button onclick="plantFlower('Rose')">Plant rose — 3 coins</button><button onclick="plantFlower('Tulip')">Plant tulip — 3 coins</button><button onclick="plantFlower('Daisy')">Plant daisy — 3 coins</button><button onclick="plantFlower('Sunflower')">Plant sunflower — 3 coins</button><button onclick="plantFlower('Lily')">Plant lily — 3 coins</button><button onclick="plantFlower('Orchid')">Plant orchid — 3 coins</button><button onclick="plantFlower('Peony')">Plant peony — 3 coins</button><button onclick="plantFlower('Iris')">Plant iris — 3 coins</button><button onclick="plantFlower('Carnation')">Plant carnation — 3 coins</button><button onclick="plantFlower('Poppy')">Plant poppy — 3 coins</button><button onclick="plantFlower('Hydrangea')">Plant hydrangea — 3 coins</button><button onclick="plantFlower('Chrysanthemum')">Plant chrysanthemum — 3 coins</button><button onclick="plantFlower('Marigold')">Plant marigold — 3 coins</button><button onclick="plantFlower('Violet')">Plant violet — 3 coins</button><button onclick="plantFlower('Wildflower')">Plant wildflower — 3 coins</button><button onclick="plantFlower('Hibiscus')">Plant hibiscus — 3 coins</button></div><div class="panel"><h2>👥 Citizens & Workers</h2><div id="citizens"></div>
+<div class="panel"><h2>💕 Relationships</h2><div id="relationships"></div></div><div class="panel"><h2>🌷 Royal Garden</h2><div id="garden"></div></div><div class="panel"><h2>💼 Jobs & Employment</h2><div id="jobs"></div></div><div class="panel"><h2>👥 Citizens & Workers</h2><div id="citizens"></div>
 <button onclick="hire('Farmhand')">Hire farmhand — 20/day</button><button onclick="hire('Forester')">Hire forester — 18/day</button><button onclick="hire('Animal keeper')">Hire animal keeper — 22/day</button><button onclick="hire('Builder')">Hire builder — 25/day</button></div>
 <div class="panel"><h2>🌾 Farm</h2><div id="farm"></div><button onclick="plant('Carrots')">Plant carrots — 2 coins</button><button onclick="plant('Wheat')">Plant wheat — 2 coins</button></div>
 <div class="panel"><h2>🧰 Resources</h2><div id="resources"></div></div>
@@ -82,49 +83,307 @@ const placeInfo={
 "Hardware Store":{text:"A useful shop for building materials and tools.",rooms:["Tools","Building Materials","Orders"]},
 "Stable":{text:"Care for horses and enjoy the kingdom's newest animals.",rooms:["Horse Stalls","Feed Room","Tack Room","Stable Yard"]}
 };
-const placeIcons={"Castle":"🏰","Town Square":"⛲","General Store":"🏪","Farm":"🌾","Veterinarian":"🐾","Library":"📚","Hardware Store":"🔨","Stable":"🐴"};
-const flowerIcons={"Rose":"🌹","Tulip":"🌷","Daisy":"🌼","Sunflower":"🌻","Lily":"🌸","Orchid":"🪷","Peony":"🌸","Iris":"🪻","Carnation":"🌸","Poppy":"🌸","Hydrangea":"💐","Chrysanthemum":"🏵️","Marigold":"🌼","Violet":"🪻","Wildflower":"🌼","Hibiscus":"🌺"};
+const placeIcons={"Castle":"🏰","Town Square":"⛲","General Store":"🏪","Farm":"🌾","Veterinarian":"🐾","Library":"📚","Hardware Store":"🔨","Stable":"🐴","Jewelry Store":"💎","Restaurant":"🍽️","Flower Shop":"🌷","Pet Shop":"🐾","Hair Salon":"💇","Clothing Boutique":"👗","Café":"☕","Doctor's Office":"🩺","Dentist":"🦷","School":"🏫","Toy Store":"🧸","Garden Center":"🌱","Bakery":"🥐","Theater":"🎭","Park":"🌳","Playground":"🛝","Inn":"🛏️","Bank":"🏦"};
 const pool=[
 ["Bakery","Our town would love fresh bread. May we open a bakery?","Baker"],["Flower Shop","People are asking for flowers and garden supplies.","Florist"],["Clothing Boutique","Citizens would like a place to buy beautiful clothes.","Clothing seller"],["Jewelry Store","A jeweler would like to set up a shop.","Jeweler"],["Hair Salon","Several citizens want a salon for hair and styling.","Stylist"],["Beauty Salon","Citizens have requested makeup and beauty services.","Beauty specialist"],["School","Families would like a school for the children.","Teacher"],["Café","People want a cozy place to meet and relax.","Café worker"],["Restaurant","A chef would like to open a restaurant.","Chef"],["Inn","Travelers need somewhere to stay overnight.","Innkeeper"],["Bank","Citizens want a safe place for savings and trade.","Banker"],["Doctor's Office","The growing town needs basic medical care.","Doctor"],["Dentist","Citizens have requested dental care.","Dentist"],["Pet Shop","Animal lovers want a place for supplies and adoption.","Pet shop worker"],["Theater","A performer wants to build a theater.","Performer"],["Toy Store","Families would love a shop full of toys.","Toy seller"],["Garden Center","Gardeners want seeds, tools and plants.","Garden center worker"],["Playground","Children need somewhere safe to play.","Playground caretaker"],["Park","Citizens would like a beautiful green space.","Gardener"]];
 const first=["Amelia","Mira","Julian","Rose","Theo","Nora","Lily","Adrian","Elena","Sofia","Noah","Luna"],last=["Rivera","Brooks","Carter","Reyes","Morgan","Bennett"];
 function fresh(){return{day:1,name:"",pronouns:"she/her",appearance:{skin:"Light",hair:"Long waves",hairColor:"Brown",eyes:"Dark Brown",dress:"Princess gown",dressColor:"Pink",shoes:"Royal heels",jewelry:"Pearl set",makeup:"None",crown:"Silver with pink gems"},coins:1000,food:50,wood:30,stone:20,happiness:80,population:5,houses:3,places:["Castle","Town Square","General Store","Farm","Veterinarian","Library"],workers:[],citizens:[{name:"Amelia Rivera",job:"Baker"},{name:"Marco Rivera",job:"Carpenter"},{name:"Sofia Rivera",job:"Student"},{name:"Lena Brooks",job:"Farmer"},{name:"Noah Brooks",job:"Farmer"}],animals:[{name:"Clover",type:"Chicken",needs:false},{name:"Poppy",type:"Chicken",needs:false},{name:"Daisy",type:"Cow",needs:false}],crops:[],requests:[],households:[{name:"Rivera Family",members:["Amelia Rivera","Marco Rivera","Sofia Rivera"]},{name:"Brooks Family",members:["Lena Brooks","Noah Brooks"]},{name:"New Household",members:[]}],relationships:[],mail:["Welcome, Your Majesty! Your citizens are excited to see what you build."]}}
-let S=(function(){try{return JSON.parse(localStorage.getItem("myKingdom")||"null")}catch(e){return null}})()||fresh(); if(!S.garden)S.garden=[]; if(!S.relationships)S.relationships=[];
-function save(){try{localStorage.setItem("myKingdom",JSON.stringify(S))}catch(e){}}
+let S=JSON.parse(localStorage.getItem("myKingdom")||"null")||fresh();
+if(!S.garden)S.garden=[];
+if(!S.relationships)S.relationships=[];
+if(!S.workers)S.workers=[];
+if(!S.citizens)S.citizens=[];
+if(!S.animals)S.animals=[];
+if(!S.crops)S.crops=[];
+if(!S.mail)S.mail=[];
+if(!S.requests)S.requests=[];
+if(!S.households)S.households=[];
+
+/* Migration: remove accidental duplicate places and duplicate citizen records. */
+S.places=[...new Set(S.places||[])];
+S.requests=(S.requests||[]).filter((r,i,a)=>!S.places.includes(r[0])&&a.findIndex(x=>x[0]===r[0])===i);
+const seenCitizenNames=new Set();
+S.citizens=(S.citizens||[]).filter(c=>{
+  if(!c || !c.name || seenCitizenNames.has(c.name)) return false;
+  seenCitizenNames.add(c.name); return true;
+});
+S.population=S.citizens.length;
+
+/* Rebuild households from the cleaned citizen list if the old version lost them. */
+const citizenSet=new Set(S.citizens.map(c=>c.name));
+S.households=(S.households||[]).map(h=>({name:h.name,members:(h.members||[]).filter(n=>citizenSet.has(n))}))
+  .filter(h=>h.members.length);
+let assigned=new Set(S.households.flatMap(h=>h.members));
+S.citizens.forEach(c=>{
+  if(!assigned.has(c.name)){
+    let h=S.households.find(h=>h.members.length<4);
+    if(!h){h={name:c.name.split(" ").pop()+" Household",members:[]};S.households.push(h);}
+    h.members.push(c.name); assigned.add(c.name);
+  }
+});
+S.houses=Math.max(S.houses||0,S.households.length);
+if(S.houses<Math.ceil(S.population/4))S.houses=Math.ceil(S.population/4);
+
+/* Keep relationships, but remove references to people who no longer exist. */
+S.relationships=(S.relationships||[]).filter(r=>citizenSet.has(r.a)&&citizenSet.has(r.b)&&r.a!==r.b);
+
+function save(){localStorage.setItem("myKingdom",JSON.stringify(S))}
 function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function getAppearance(){return{skin:skin.value,hair:hair.value,hairColor:hairColor.value,eyes:eyes.value,dress:dress.value,dressColor:dressColor.value,shoes:shoes.value,jewelry:jewelry.value,makeup:makeup.value,crown:crown.value}}
 function updateCreatorPreview(){let a=getAppearance();creatorPreview.innerHTML=`<div style="font-size:70px">👸</div><b>${esc(a.dressColor)} ${esc(a.dress)}</b><br>👁️ ${esc(a.eyes)} eyes • 💇 ${esc(a.hairColor)} ${esc(a.hair)} • 👠 ${esc(a.shoes)} • 💎 ${esc(a.jewelry)} • 💄 ${esc(a.makeup)} • 👑 ${esc(a.crown)}`}
 document.querySelectorAll("#creator select").forEach(x=>x.addEventListener("change",updateCreatorPreview));
 function startKingdom(){S.name=rulerName.value.trim()||"Rossi";S.pronouns=pronouns.value;S.appearance=getAppearance();save();creator.classList.add("hidden");game.classList.remove("hidden");render()}
-function editCharacter(){game.classList.add("hidden");creator.classList.remove("hidden");rulerName.value=S.name;pronouns.value=S.pronouns;let a=S.appearance||{};skin.value=a.skin||"Light";hair.value=a.hair||"Long waves";hairColor.value=a.hairColor||"Brown";eyes.value=a.eyes||"Dark Brown";dress.value=a.dress||"Princess gown";dressColor.value=a.dressColor||"Pink";shoes.value=a.shoes||"Royal heels";jewelry.value=a.jewelry||"Pearl set";makeup.value=a.makeup||"None";crown.value=a.crown||"Silver with pink gems";updateCreatorPreview();window.scrollTo(0,0)}
+
+function incomePerDay(){const citizenIncome=(S.citizens||[]).reduce((sum,c)=>sum+getJobIncome(c.job),0);return citizenIncome+(S.places||[]).length*2;}
+function collectIncome(){
+  const amount=incomePerDay();
+  S.coins=(S.coins||0)+amount;
+  S.mail.push(`The kingdom collected ${amount} coins from taxes and local businesses. 💰`);
+  render();
+}
+function renderIncome(){
+  const box=document.getElementById("income");
+  if(!box)return;
+  box.innerHTML=`<p>Your citizens' jobs and businesses generate income.</p>
+  <p><b>💰 Daily income: ${incomePerDay()} coins</b></p>
+  <button class="primary" onclick="collectIncome()">💰 Collect today's income</button>`;
+}
+
+
+function happinessAction(action){
+  const costs={
+    festival:{coins:35,happy:10,msg:"You hosted a royal festival! Music, food and dancing filled the kingdom. 🎉"},
+    picnic:{food:4,happy:5,msg:"You organized a kingdom picnic in the royal garden. 🧺🌷"},
+    decorations:{coins:15,happy:4,msg:"You decorated the town with flowers, ribbons and lanterns. 🌸🏮"},
+    playground:{coins:30,happy:8,msg:"You opened a cheerful play day for the children. 🛝"},
+    feast:{coins:25,food:8,happy:7,msg:"You held a royal feast for everyone in the kingdom. 🍰👑"},
+    parade:{coins:20,happy:6,msg:"A colorful parade traveled through the town. 🎈🎺"}
+  };
+  const a=costs[action];
+  if(!a)return;
+  if((S.coins||0)<(a.coins||0)){S.mail.push(`Not enough coins for that activity. You need ${a.coins} coins.`);render();return;}
+  if((S.food||0)<(a.food||0)){S.mail.push(`Not enough food for that activity. You need ${a.food} food.`);render();return;}
+  S.coins-=(a.coins||0); S.food-=(a.food||0);
+  S.happiness=Math.min(100,S.happiness+a.happy);
+  S.mail.push(a.msg);
+  render();
+}
+function renderHappinessActions(){
+  const box=document.getElementById("happinessActions");
+  if(!box)return;
+  box.innerHTML=`
+  <p>You can improve happiness through everyday royal activities—not just requests.</p>
+  <div class="visual-row">
+    <button class="primary" onclick="happinessAction('festival')">🎉 Royal festival<br><span class="small">35 coins • +10 happiness</span></button>
+    <button onclick="happinessAction('picnic')">🧺 Community picnic<br><span class="small">4 food • +5 happiness</span></button>
+    <button onclick="happinessAction('decorations')">🌸 Decorate town<br><span class="small">15 coins • +4 happiness</span></button>
+    <button onclick="happinessAction('playground')">🛝 Children's play day<br><span class="small">30 coins • +8 happiness</span></button>
+    <button onclick="happinessAction('feast')">🍰 Royal feast<br><span class="small">25 coins + 8 food • +7 happiness</span></button>
+    <button onclick="happinessAction('parade')">🎈 Town parade<br><span class="small">20 coins • +6 happiness</span></button>
+  </div>`;
+}
+
+
+const placeJobs={"General Store":["Shop assistant","Cashier"],"Farm":["Farmer","Farmhand","Gardener"],"Veterinarian":["Veterinarian assistant","Receptionist"],"Library":["Librarian assistant","Storyteller"],"Hardware Store":["Hardware clerk","Stocker"],"Stable":["Stable hand","Groom"],"Jewelry Store":["Jeweler assistant","Sales clerk"],"Restaurant":["Chef","Server","Host"],"Flower Shop":["Florist assistant","Shop assistant"],"Pet Shop":["Pet shop assistant","Groom"],"Hair Salon":["Stylist","Salon assistant","Receptionist"],"Clothing Boutique":["Clothing seller","Sales assistant"],"Café":["Barista","Server"],"Doctor's Office":["Doctor","Nurse","Receptionist"],"Dentist":["Dentist","Dental assistant","Receptionist"],"School":["Teacher","School assistant"],"Toy Store":["Toy seller","Shop assistant"],"Garden Center":["Garden center worker","Gardener"],"Playground":["Playground caretaker"],"Park":["Gardener","Park caretaker"],"Bakery":["Baker","Assistant baker"],"Beauty Salon":["Beauty specialist","Assistant"],"Inn":["Innkeeper","Housekeeper"],"Bank":["Banker","Teller"],"Theater":["Performer","Usher"]};
+function getJobIncome(job){const base={Baker:12,Carpenter:12,Farmer:10,Veterinarian:14,Librarian:10,"Hardware clerk":11,"Stable hand":10,Jeweler:16,Chef:16,Florist:12,"Pet shop worker":13,Stylist:14,"Clothing seller":13,"Café worker":14,Doctor:18,Dentist:18,Resident:4,Student:2};return base[job]||10;}
+function hireCitizenFor(place,job){const citizen=(S.citizens||[]).find(c=>c.job==="Resident");if(!citizen){S.mail.push(`Your Majesty, there are no unemployed residents available for ${job} at ${place}.`);render();return;}citizen.job=job;S.happiness=Math.min(100,S.happiness+1);S.mail.push(`${citizen.name} has been hired as ${job} at ${place}. 💼`);render();}
+function renderJobs(){const box=document.getElementById("jobs");if(!box)return;const available=(S.citizens||[]).filter(c=>c.job==="Resident").length;let out=`<p><b>${available}</b> residents are currently looking for work. New residents arrive as Residents.</p>`;(S.places||[]).forEach(place=>{const jobs=placeJobs[place];if(!jobs)return;out+=`<div class="card"><h3>${placeIcons[place]||"🏪"} ${esc(place)}</h3>`;jobs.forEach(job=>{const filled=(S.citizens||[]).filter(c=>c.job===job).length;out+=`<div class="job-row"><span>💼 ${esc(job)} — ${filled} hired</span><button onclick="hireCitizenFor('${esc(place)}','${esc(job)}')" ${available?"":"disabled"}>Hire resident</button></div>`;});out+="</div>";});box.innerHTML=out;}
+function buildHouse(){if((S.coins||0)<60||(S.wood||0)<10){S.mail.push("Your Majesty, a house costs 60 coins and 10 wood.");render();return;}S.coins-=60;S.wood-=10;S.houses=(S.houses||0)+1;S.households=S.households||[];S.households.push({name:`New Household ${S.households.length+1}`,members:[]});S.happiness=Math.min(100,S.happiness+4);S.mail.push("A new home has been built for the kingdom. 🏠");render();}
+function renderRoyalNeeds(){const box=document.getElementById("royalNeeds");if(!box)return;const needs=[],capacity=(S.houses||0)*4;if((S.population||0)>capacity)needs.push(`<div class="card"><h3>🏠 Your Majesty, we need more houses.</h3><p>There are ${S.population} citizens but only ${capacity} home spaces.</p><button class="primary" onclick="buildHouse()">Build a house — 60 coins + 10 wood</button></div>`);else if((S.population||0)>=Math.max(1,capacity-2))needs.push(`<div class="card"><h3>🏠 Your Majesty, our homes are filling up.</h3><p>More families may arrive soon.</p><button onclick="buildHouse()">Build a house — 60 coins + 10 wood</button></div>`);if((S.food||0)<Math.max(10,Math.ceil((S.population||0)*2)))needs.push(`<div class="card"><h3>🌾 Your Majesty, our food stores are getting low.</h3><p>We have ${S.food} food for ${S.population} citizens.</p></div>`);if((S.wood||0)<15)needs.push(`<div class="card"><h3>🪵 Your Majesty, we need more wood.</h3><p>Our construction projects are using timber.</p></div>`);if((S.stone||0)<15)needs.push(`<div class="card"><h3>🪨 Your Majesty, our stone stores are low.</h3><p>We may need stone for future construction.</p></div>`);const unemployed=(S.citizens||[]).filter(c=>c.job==="Resident").length;if(unemployed)needs.push(`<div class="card"><h3>💼 Your Majesty, some residents are looking for work.</h3><p>${unemployed} resident${unemployed===1?" is":"s are"} currently unemployed. Check Jobs & Employment.</p></div>`);box.innerHTML=needs.length?needs.join(""):`<div class="notice">🌷 <b>Your Majesty, things are going well!</b><br>Your citizens have no urgent needs right now.</div>`;}
+
 function render(){
 welcome.textContent=`Welcome, ${S.name}! 👑`; dayline.textContent=`Day ${S.day} • ${S.population} citizens • Your kingdom is growing naturally.`;
 stats.innerHTML=[["💰","Treasury",S.coins+" coins"],["😊","Happiness",S.happiness+"%"],["👥","Population",S.population],["🏠","Homes",S.houses],["🌾","Food",S.food],["🪵","Wood",S.wood],["🪨","Stone",S.stone]].map(x=>`<div class="stat"><b>${x[0]} ${x[1]}</b><br>${x[2]}</div>`).join("");
 let a=S.appearance||{}; avatar.innerHTML=`<div class="avatar-doll"><div class="doll-head">👸</div><div class="doll-outfit">👗</div><div class="doll-accessories">👠 💎 👑</div><b>${esc(S.name)}</b><br><span class="small">👁️ ${esc(a.eyes||"Dark Brown")} eyes • ${esc(a.dressColor||"Pink")} ${esc(a.dress||"Princess gown")} • 👠 ${esc(a.shoes||"Royal heels")} • 💎 ${esc(a.jewelry||"Pearl set")}</span></div>`;
 places.innerHTML=S.places.map((pl,i)=>`<div class="card"><button class="place-btn" onclick="visitPlace(${i})" aria-label="Visit ${esc(pl)}"><strong>${placeIcons[pl]||"🏡"} ${esc(pl)}</strong><span>Activate to visit this place</span></button></div>`).join("");
 kingdomMap.innerHTML=S.places.map((pl,i)=>`<button class="map-place" onclick="visitPlace(${i})" aria-label="Visit ${esc(pl)} on the kingdom map"><span class="icon">${placeIcons[pl]||"🏡"}</span><small>${esc(pl)}</small></button>`).join("");
-households.innerHTML=(S.households||[]).map(h=>`<div class="house-card"><div class="house-icon">🏠</div><h3>${esc(h.name)}</h3><p>${h.members&&h.members.length?h.members.map(x=>`<span class="tag">👤 ${esc(x)}</span>`).join(""):"<span class=\"small\">Available home</span>"}</p></div>`).join("")||"<p>No households yet.</p>";
+households.innerHTML=(S.households||[]).map(h=>{
+  const members=(h.members||[]).map(x=>`<span class="tag">👤 ${esc(x)}</span>`).join("");
+  const shown=members||'<span class="small">Available home</span>';
+  return `<div class="house-card"><div class="house-icon">🏠</div><h3>${esc(h.name)}</h3><p>${shown}</p></div>`;
+}).join("")||"<p>No households yet.</p>";
 citizens.innerHTML=`<p><b>Residents:</b> ${(S.citizens||[]).length?S.citizens.map(c=>`${esc(c.name)} — ${esc(c.job)}`).join(" • "):"No residents yet."}</p><p><b>Royal workers:</b> ${(S.workers||[]).length?S.workers.map(w=>`${esc(w.name)} (${esc(w.job)})`).join(" • "):"None hired yet."}</p>`;
 farm.innerHTML=`<div class="scene-art" aria-hidden="true">🌾 🐔 🐄 🥕 🌻</div><p><b>Animals:</b> ${(S.animals||[]).length?S.animals.map(x=>`${esc(x.name)} the ${esc(x.type)} — ${x.needs?"needs care":"cared for"}`).join(" • "):"No animals yet."}</p><p><b>Crops:</b> ${(S.crops||[]).length?S.crops.map(x=>`${esc(x.type)} (${x.age}/3 days)`).join(" • "):"No crops planted."}</p>`;
 resources.innerHTML=`<div class="visual-row"><span class="tag">🌾 Food ${S.food}</span><span class="tag">🪵 Wood ${S.wood}</span><span class="tag">🪨 Stone ${S.stone}</span></div>`;
 mail.innerHTML=(S.mail||[]).slice(-8).reverse().map(x=>`<div class="notice">${esc(x)}</div>`).join("")||"<p>No royal mail yet.</p>";
-requests.innerHTML=(S.requests||[]).length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve and unlock ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
-renderGarden(); renderRelationships(); save();
+requests.innerHTML=(S.requests||[]).length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve — unlock for free: ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
+renderGarden(); renderRelationships(); renderHappinessActions(); renderIncome(); renderRoyalNeeds(); renderJobs(); save();
 }
+
+function renderRelationships(){
+  const box=document.getElementById("relationships");
+  if(!box)return;
+  S.relationships=(S.relationships||[]).filter(r=>S.citizens.some(c=>c.name===r.a)&&S.citizens.some(c=>c.name===r.b));
+  box.innerHTML=S.relationships.length
+    ? S.relationships.map(r=>`<div class="relationship-card">${r.icon||"🤝"} <b>${esc(r.a)}</b> & ${esc(r.b)}<br><span class="small">${esc(r.label||"Acquaintances")} • ${r.score||10}/100</span></div>`).join("")
+    : "<p>No special relationships yet. Citizens are getting to know one another. 💕</p>";
+}
+function relationshipTick(){
+  if(!S.relationships)S.relationships=[];
+  const eligible=S.citizens.filter(c=>c.job!=="Student");
+  if(eligible.length<2 || Math.random()>.75)return;
+  const a=eligible[Math.floor(Math.random()*eligible.length)];
+  const b=eligible[Math.floor(Math.random()*eligible.length)];
+  if(!a||!b||a.name===b.name)return;
+
+  let r=S.relationships.find(x=>(x.a===a.name&&x.b===b.name)||(x.a===b.name&&x.b===a.name));
+  if(!r){
+    r={a:a.name,b:b.name,type:"friendship",label:"Acquaintances",score:10,icon:"🤝"};
+    S.relationships.push(r);
+  }else{
+    r.score=Math.min(100,(r.score||10)+10);
+    if(r.score>=80){r.type="friendship";r.label="Close friends";r.icon="💗";}
+    else if(r.score>=50){r.type="friendship";r.label="Good friends";r.icon="🤝";}
+    else {r.type="friendship";r.label="Friends";r.icon="💛";}
+  }
+
+  /* Romantic relationships are adult-only in this version. */
+  if(r.score>=70 && Math.random()<.18 && a.job!=="Student" && b.job!=="Student"){
+    r.type="romance";r.label=r.score>=90?"In love":"Dating";r.icon="💕";
+    S.mail.push(`${a.name} and ${b.name} are growing closer. 💕`);
+  }else if(r.score===20){
+    S.mail.push(`${a.name} and ${b.name} became acquainted. 🤝`);
+  }
+}
+function editCharacter(){
+  creator.classList.remove("hidden");game.classList.add("hidden");
+  rulerName.value=S.name;pronouns.value=S.pronouns;
+  const a=S.appearance||{};
+  ["skin","hair","hairColor","eyes","dress","dressColor","shoes","jewelry","makeup","crown"].forEach(k=>{
+    if(window[k]&&a[k])window[k].value=a[k];
+  });
+  updateCreatorPreview();
+  const btn=document.querySelector("#creator .primary");
+  btn.textContent="Save character changes";
+  btn.onclick=saveCharacterChanges;
+}
+function saveCharacterChanges(){
+  S.name=rulerName.value.trim()||S.name||"Rossi";
+  S.pronouns=pronouns.value;
+  S.appearance=getAppearance();
+  creator.classList.add("hidden");game.classList.remove("hidden");
+  const btn=document.querySelector("#creator .primary");
+  btn.textContent="Begin My Kingdom";btn.onclick=startKingdom;
+  S.mail.push("Your royal character has been updated.");
+  render();
+}
+
 function sceneEmoji(p){return({"Castle":"🏰🌷👑","Town Square":"⛲🌳🧺","General Store":"🏪🛍️📦","Farm":"🌾🐄🐔","Veterinarian":"🐾🩺🐶","Library":"📚🕯️🌿","Hardware Store":"🔨🪵🧰","Stable":"🐴🌾🪣"}[p]||"🏡🌸✨")}
 function visitPlace(i){let p=S.places[i],info=placeInfo[p]||{text:`${p} is open and part of your growing kingdom.`,rooms:["Main area","Services","Citizen area"]};locationPanel.classList.remove("hidden");locationPanel.innerHTML=`<div class="scene-art" aria-hidden="true">${sceneEmoji(p)}</div><h2>📍 ${esc(p)}</h2><p>${esc(info.text)}</p>${info.rooms.map(r=>`<div class="room"><button onclick="useRoom('${esc(p)}','${esc(r)}')">Open ${esc(r)}</button></div>`).join("")}<button class="primary" onclick="locationPanel.classList.add('hidden')">Leave ${esc(p)}</button>`;locationPanel.focus();S.mail.push(`You visited ${p}.`);save()}
 function useRoom(place,room){let msg=room==="Treasury"?`The treasury contains ${S.coins} coins.`:room==="Wardrobe"?`Your current outfit is a ${S.appearance.dressColor} ${S.appearance.dress}.`:room==="Jewelry Room"?`Your jewelry collection currently includes your ${S.appearance.jewelry}.`:room==="Farm Status"?`Your farm has ${S.animals.length} animals and ${S.crops.length} growing crop plot(s).`:room==="Royal Garden"?`Your royal garden has ${S.garden?.length||0} flowers planted. You can manage all flower types in the Royal Garden section.`:`You are in the ${room} at the ${place}.`;S.mail.push(`${place}: ${msg}`);render();visitPlace(S.places.indexOf(place))}
 function hire(job){let cost={Farmhand:20,Forester:18,"Animal keeper":22,Builder:25}[job];if(S.coins<cost){S.mail.push(`The treasury cannot afford a ${job} today.`);render();return}S.coins-=cost;let n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];S.workers.push({name:n,job});S.mail.push(`${n} has been hired as a ${job}.`);render()}
 function plant(type){if(S.coins<2){S.mail.push("You need 2 coins to plant a crop.");render();return}S.coins-=2;S.crops.push({type,age:0});S.mail.push(`${type} was planted.`);render()}
-function approve(i){let r=S.requests[i];S.places.push(r[0]);let n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];S.citizens.push({name:n,job:r[2]});S.population++;let h=S.households.find(x=>x.members.length<3);if(h)h.members.push(n);else{S.households.push({name:n.split(" ").pop()+" Household",members:[n]});S.houses++}S.requests.splice(i,1);S.happiness=Math.min(100,S.happiness+2);S.mail.push(`${r[0]} has opened! ${n} has joined the kingdom as ${r[2]}.`);render()}
-function decline(i){let r=S.requests[i];S.requests.splice(i,1);S.mail.push(`You asked the ${r[0].toLowerCase()} idea to wait. It may return later.`);render()}
-function maybeRequest(){let a=pool.filter(r=>!S.places.includes(r[0])&&!S.requests.some(q=>q[0]===r[0]));if(a.length&&Math.random()<.65)S.requests.push(a[Math.floor(Math.random()*a.length)])}
-function nextDay(){S.day++;let wages=S.workers.reduce((n,w)=>n+({Farmhand:20,Forester:18,"Animal keeper":22,Builder:25}[w.job]||15),0);S.coins=Math.max(0,S.coins+35-wages);if(S.workers.some(w=>w.job==="Forester"))S.wood+=5;if(S.workers.some(w=>w.job==="Builder"))S.stone+=3;if(S.workers.some(w=>w.job==="Animal keeper"))S.animals.forEach(a=>a.needs=false);else S.animals.forEach(a=>a.needs=true);if(S.workers.some(w=>w.job==="Farmhand"))S.crops.forEach(c=>c.age++);S.crops.forEach(c=>{if(c.age>=3){S.food+=5;S.mail.push(`${c.type} was harvested and added to the food stores.`)}});S.crops=S.crops.filter(c=>c.age<3);S.food=Math.max(0,S.food-2);if(S.houses>S.population/2&&Math.random()<.7){let n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];if(!S.citizens.some(c=>c.name===n)){S.citizens.push({name:n,job:"Resident"});S.population++;let h=S.households.find(x=>x.members.length<3);if(h)h.members.push(n);else{S.households.push({name:n.split(" ").pop()+" Household",members:[n]});S.houses++}S.mail.push(`${n} has moved into your kingdom. Welcome!`)}}if(Math.random()<.5)maybeRequest(); relationshipTick();if(S.animals.some(a=>a.needs)&&!S.workers.some(w=>w.job==="Animal keeper"))S.happiness=Math.max(0,S.happiness-1);render()}
-function plantFlower(type){let cost=3;if(S.coins<cost){S.mail.push(`You need ${cost} coins to plant a ${type.toLowerCase()}.`);render();return}S.coins-=cost;S.garden.push({type});S.happiness=Math.min(100,S.happiness+1);S.mail.push(`A ${type.toLowerCase()} was planted in the Royal Garden.`);render()}
-function renderGarden(){garden.innerHTML=(S.garden||[]).length?`<div class="visual-row">${S.garden.map(f=>`<div class="flower"><div class="flower-icon">${flowerIcons[f.type]||"🌸"}</div><small>${esc(f.type)}</small></div>`).join("")}</div>`:"<p>No flowers planted yet. Plant some below to brighten the Royal Garden.</p>"}
-function relationshipStatus(level){if(level>=80)return"Best Friends";if(level>=55)return"Close Friends";if(level>=25)return"Friends";return"Acquaintances"}
-function relationshipTick(){let names=(S.citizens||[]).map(c=>c.name);if(names.length<2)return;let tries=Math.min(2,Math.floor(names.length/2));for(let t=0;t<tries;t++){let i=Math.floor(Math.random()*names.length),j=Math.floor(Math.random()*names.length);if(i===j)continue;let a=names[i],b=names[j];let rel=S.relationships.find(r=>(r.a===a&&r.b===b)||(r.a===b&&r.b===a));if(!rel){rel={a,b,level:10};S.relationships.push(rel);S.mail.push(`${a} and ${b} became acquainted.`)}else{let before=relationshipStatus(rel.level);rel.level=Math.min(100,rel.level+Math.floor(Math.random()*8)+2);let after=relationshipStatus(rel.level);if(after!==before)S.mail.push(`${a} and ${b} are now ${after.toLowerCase()}.`)}}}
-function renderRelationships(){relationships.innerHTML=(S.relationships||[]).length?S.relationships.map(r=>`<div class="relationship-card"><b>${esc(r.a)} & ${esc(r.b)}</b><br><span class="small">${esc(relationshipStatus(r.level))} • ${r.level}/100</span></div>`).join(""):"<p>No relationships have formed yet. They'll develop naturally as days pass.</p>"}
-function resetKingdom(){if(confirm("Delete this kingdom and start over?")){try{localStorage.removeItem("myKingdom")}catch(e){}location.reload()}}
+function approve(i){
+  const r=S.requests?.[i];
+  if(!r)return;
+
+  const place=r[0];
+
+  // A request never costs coins. Approval simply unlocks the requested place.
+  if(S.places.includes(place)){
+    S.requests.splice(i,1);
+    S.mail.push(`${place} was already unlocked, so the duplicate request was removed.`);
+    render();
+    return;
+  }
+
+  S.places.push(place);
+
+  // Give the new place one appropriately named worker, without duplicating names.
+  let tries=0, n;
+  do{
+    n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];
+    tries++;
+  }while(S.citizens.some(c=>c.name===n)&&tries<50);
+  if(S.citizens.some(c=>c.name===n)) n=`New Citizen ${S.citizens.length+1}`;
+
+  const job=r[2]||"Resident";
+  S.citizens.push({name:n,job});
+  S.population=S.citizens.length;
+
+  // Put the new resident into an existing household with room, or create one.
+  let h=S.households.find(x=>(x.members||[]).length<4);
+  if(!h){
+    h={name:n.split(" ").pop()+" Household",members:[]};
+    S.households.push(h);
+  }
+  h.members.push(n);
+  S.houses=Math.max(S.houses||0,S.households.length);
+
+  // Remove ONLY this request. It cannot remain in the request list.
+  S.requests.splice(i,1);
+  S.happiness=Math.min(100,S.happiness+2);
+  S.mail.push(`${place} has opened! ${n} has joined the kingdom as ${job}.`);
+  render();
+}
+function decline(i){
+  const r=S.requests?.[i];
+  if(!r)return;
+  const place=r[0];
+  S.requests.splice(i,1);
+  S.mail.push(`You declined the request for ${place}. It remains locked for now.`);
+  render();
+}
+function maybeRequest(){
+  if(!S.requests)S.requests=[];
+  const pending=new Set(S.requests.map(r=>r[0]));
+  const available=(pool||[]).filter(r=>!S.places.includes(r[0])&&!pending.has(r[0]));
+  if(available.length && Math.random()<.65){
+    const request=available[Math.floor(Math.random()*available.length)];
+    S.requests.push(request);
+  }
+}
+function nextDay(){
+  S.day++;
+
+  /* Citizens generate town income, so the kingdom cannot get permanently stuck at 0 coins. */
+  const wages=S.workers.reduce((n,w)=>n+({Farmhand:20,Forester:18,"Animal keeper":22,Builder:25}[w.job]||15),0);
+  const townIncome=incomePerDay();
+  S.coins=Math.max(0,S.coins+townIncome-wages);
+
+  if(S.workers.some(w=>w.job==="Forester"))S.wood+=5;
+  if(S.workers.some(w=>w.job==="Builder"))S.stone+=3;
+  if(S.workers.some(w=>w.job==="Animal keeper"))S.animals.forEach(a=>a.needs=false);
+
+  if(S.workers.some(w=>w.job==="Farmhand"))S.crops.forEach(c=>c.age++);
+  S.crops.forEach(c=>{
+    if(c.age>=3){
+      S.food+=5;
+      S.mail.push(`${c.type} was harvested and added to the food stores.`);
+    }
+  });
+  S.crops=S.crops.filter(c=>c.age<3);
+
+  const foodUse=Math.max(1,Math.ceil(S.citizens.length/6));
+  S.food=Math.max(0,S.food-foodUse);
+
+  /* New residents only arrive when there is room. */
+  if(S.households.some(h=>h.members.length<4) && Math.random()<.65){
+    let tries=0,n;
+    do{
+      n=first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];
+      tries++;
+    }while(S.citizens.some(c=>c.name===n)&&tries<50);
+
+    if(!S.citizens.some(c=>c.name===n)){
+      S.citizens.push({name:n,job:"Resident"});
+      S.population=S.citizens.length;
+      const h=S.households.find(x=>x.members.length<4);
+      h.members.push(n);
+      S.mail.push(`${n} has moved into your kingdom. Welcome!`);
+    }
+  }
+
+  S.population=S.citizens.length;
+  S.houses=Math.max(S.households.length,Math.ceil(S.population/4)); while(S.households.length<S.houses)S.households.push({name:`New Household ${S.households.length+1}`,members:[]});
+
+  if(Math.random()<.5)maybeRequest();
+  relationshipTick();
+  // Happiness does not silently decay; citizens report needs in Royal Needs.
+
+  render();
+}
+function resetKingdom(){if(confirm("Delete this kingdom and start over?")){localStorage.removeItem("myKingdom");location.reload()}}
 if(S.name){creator.classList.add("hidden");game.classList.remove("hidden");render()}else updateCreatorPreview();
 </script>
 </body></html>

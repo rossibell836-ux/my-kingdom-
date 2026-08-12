@@ -142,10 +142,10 @@ function collectIncome(){
   render();
 }
 function renderIncome(){
-  const box=document.getElementById("income");
-  if(!box)return;
-  box.innerHTML=`<p>Your citizens' jobs and businesses generate income.</p>
-  <p><b>💰 Daily income: ${incomePerDay()} coins</b></p>
+  const box=document.getElementById("income"); if(!box)return;
+  const amount=incomePerDay();
+  box.innerHTML=`<p>Jobs and businesses bring money into the kingdom.</p>
+  <p><b>💰 Estimated daily income: ${amount} coins</b></p>
   <button class="primary" onclick="collectIncome()">💰 Collect today's income</button>`;
 }
 
@@ -187,10 +187,56 @@ function renderHappinessActions(){
 const placeJobs={"General Store":["Shop assistant","Cashier"],"Farm":["Farmer","Farmhand","Gardener"],"Veterinarian":["Veterinarian assistant","Receptionist"],"Library":["Librarian assistant","Storyteller"],"Hardware Store":["Hardware clerk","Stocker"],"Stable":["Stable hand","Groom"],"Jewelry Store":["Jeweler assistant","Sales clerk"],"Restaurant":["Chef","Server","Host"],"Flower Shop":["Florist assistant","Shop assistant"],"Pet Shop":["Pet shop assistant","Groom"],"Hair Salon":["Stylist","Salon assistant","Receptionist"],"Clothing Boutique":["Clothing seller","Sales assistant"],"Café":["Barista","Server"],"Doctor's Office":["Doctor","Nurse","Receptionist"],"Dentist":["Dentist","Dental assistant","Receptionist"],"School":["Teacher","School assistant"],"Toy Store":["Toy seller","Shop assistant"],"Garden Center":["Garden center worker","Gardener"],"Playground":["Playground caretaker"],"Park":["Gardener","Park caretaker"],"Bakery":["Baker","Assistant baker"],"Beauty Salon":["Beauty specialist","Assistant"],"Inn":["Innkeeper","Housekeeper"],"Bank":["Banker","Teller"],"Theater":["Performer","Usher"]};
 function getJobIncome(job){const base={Baker:12,Carpenter:12,Farmer:10,Veterinarian:14,Librarian:10,"Hardware clerk":11,"Stable hand":10,Jeweler:16,Chef:16,Florist:12,"Pet shop worker":13,Stylist:14,"Clothing seller":13,"Café worker":14,Doctor:18,Dentist:18,Resident:4,Student:2};return base[job]||10;}
 function hireCitizenFor(place,job){const citizen=(S.citizens||[]).find(c=>c.job==="Resident");if(!citizen){S.mail.push(`Your Majesty, there are no unemployed residents available for ${job} at ${place}.`);render();return;}citizen.job=job;S.happiness=Math.min(100,S.happiness+1);S.mail.push(`${citizen.name} has been hired as ${job} at ${place}. 💼`);render();}
-function renderJobs(){const box=document.getElementById("jobs");if(!box)return;const available=(S.citizens||[]).filter(c=>c.job==="Resident").length;let out=`<p><b>${available}</b> residents are currently looking for work. New residents arrive as Residents.</p>`;(S.places||[]).forEach(place=>{const jobs=placeJobs[place];if(!jobs)return;out+=`<div class="card"><h3>${placeIcons[place]||"🏪"} ${esc(place)}</h3>`;jobs.forEach(job=>{const filled=(S.citizens||[]).filter(c=>c.job===job).length;out+=`<div class="job-row"><span>💼 ${esc(job)} — ${filled} hired</span><button onclick="hireCitizenFor('${esc(place)}','${esc(job)}')" ${available?"":"disabled"}>Hire resident</button></div>`;});out+="</div>";});box.innerHTML=out;}
+function renderJobs(){
+  const box=document.getElementById("jobs"); if(!box)return;
+  const residents=(S.citizens||[]).filter(c=>c.job==="Resident");
+  const employed=(S.citizens||[]).filter(c=>c.job&&c.job!=="Resident");
+  let out=`<p><b>${employed.length}</b> citizens have jobs. <b>${residents.length}</b> residents are available to hire.</p>`;
+  (S.places||[]).forEach(place=>{
+    const jobs=placeJobs[place]; if(!jobs)return;
+    out+=`<div class="card"><h3>${placeIcons[place]||"🏪"} ${esc(place)}</h3>`;
+    jobs.forEach(job=>{
+      const filled=(S.citizens||[]).filter(c=>c.job===job).length;
+      const workerNames=(S.citizens||[]).filter(c=>c.job===job).map(c=>esc(c.name)).join(", ");
+      out+=`<div class="job-row"><span>💼 <b>${esc(job)}</b> — ${filled} hired${workerNames?` (${workerNames})`:""}</span><button onclick="hireCitizenFor('${esc(place)}','${esc(job)}')" ${residents.length?"":"disabled"}>Hire resident</button></div>`;
+    });
+    out+="</div>";
+  });
+  box.innerHTML=out;
+}
 function buildHouse(){if((S.coins||0)<60||(S.wood||0)<10){S.mail.push("Your Majesty, a house costs 60 coins and 10 wood.");render();return;}S.coins-=60;S.wood-=10;S.houses=(S.houses||0)+1;S.households=S.households||[];S.households.push({name:`New Household ${S.households.length+1}`,members:[]});S.happiness=Math.min(100,S.happiness+4);S.mail.push("A new home has been built for the kingdom. 🏠");render();}
-function renderRoyalNeeds(){const box=document.getElementById("royalNeeds");if(!box)return;const needs=[],capacity=(S.houses||0)*4;if((S.population||0)>capacity)needs.push(`<div class="card"><h3>🏠 Your Majesty, we need more houses.</h3><p>There are ${S.population} citizens but only ${capacity} home spaces.</p><button class="primary" onclick="buildHouse()">Build a house — 60 coins + 10 wood</button></div>`);else if((S.population||0)>=Math.max(1,capacity-2))needs.push(`<div class="card"><h3>🏠 Your Majesty, our homes are filling up.</h3><p>More families may arrive soon.</p><button onclick="buildHouse()">Build a house — 60 coins + 10 wood</button></div>`);if((S.food||0)<Math.max(10,Math.ceil((S.population||0)*2)))needs.push(`<div class="card"><h3>🌾 Your Majesty, our food stores are getting low.</h3><p>We have ${S.food} food for ${S.population} citizens.</p></div>`);if((S.wood||0)<15)needs.push(`<div class="card"><h3>🪵 Your Majesty, we need more wood.</h3><p>Our construction projects are using timber.</p></div>`);if((S.stone||0)<15)needs.push(`<div class="card"><h3>🪨 Your Majesty, our stone stores are low.</h3><p>We may need stone for future construction.</p></div>`);const unemployed=(S.citizens||[]).filter(c=>c.job==="Resident").length;if(unemployed)needs.push(`<div class="card"><h3>💼 Your Majesty, some residents are looking for work.</h3><p>${unemployed} resident${unemployed===1?" is":"s are"} currently unemployed. Check Jobs & Employment.</p></div>`);box.innerHTML=needs.length?needs.join(""):`<div class="notice">🌷 <b>Your Majesty, things are going well!</b><br>Your citizens have no urgent needs right now.</div>`;}
+function renderRoyalNeeds(){
+  const box=document.getElementById("royalNeeds"); if(!box)return;
+  const needs=[], pop=S.population||0, houses=S.houses||0, food=S.food||0;
+  const capacity=houses*4;
+  if(pop>capacity) needs.push(`<div class="card"><h3>🏠 Your Majesty, we need more houses.</h3><p>There are ${pop} citizens but only ${capacity} home spaces.</p><button class="primary" onclick="buildHouse()">🏠 Build a house — 60 coins + 10 wood</button></div>`);
+  else if(pop>=Math.max(1,capacity-2)) needs.push(`<div class="card"><h3>🏠 Your Majesty, our homes are filling up.</h3><p>More families may arrive soon.</p></div>`);
+  if(food<Math.max(10,Math.ceil(pop*2))) needs.push(`<div class="card"><h3>🌾 Your Majesty, our food stores are low.</h3><p>We have ${food} food for ${pop} citizens. More farming or food production would help.</p></div>`);
+  if((S.wood||0)<15) needs.push(`<div class="card"><h3>🪵 Your Majesty, we need more wood.</h3><p>Our builders and businesses are using timber.</p></div>`);
+  if((S.stone||0)<15) needs.push(`<div class="card"><h3>🪨 Your Majesty, our stone stores are low.</h3><p>We may need stone for future construction.</p></div>`);
+  const unemployed=(S.citizens||[]).filter(c=>c.job==="Resident").length;
+  if(unemployed) needs.push(`<div class="card"><h3>💼 Your Majesty, some residents want work.</h3><p>${unemployed} resident${unemployed===1?" is":"s are"} currently unemployed. You can hire them below.</p></div>`);
+  if((S.happiness||0)<45){
+    needs.push(`<div class="card"><h3>😊 Your Majesty, the people aren't feeling very happy.</h3><p>They have asked for more fun, community time and things to do. Try a festival, picnic, parade, decorations, feast or children's play day.</p>
+    <div class="small">💡 Happiness can also improve when people have homes, jobs, friends, useful places and enough food.</div></div>`);
+  } else if((S.happiness||0)<70){
+    needs.push(`<div class="card"><h3>🌷 Your Majesty, happiness could be better.</h3><p>The kingdom is doing okay, but citizens would enjoy more community activities and places to spend time together.</p></div>`);
+  }
+  box.innerHTML=needs.length?needs.join(""):`<div class="notice">🌷 <b>Your Majesty, the kingdom is thriving!</b><br>Your citizens have no urgent needs right now.</div>`;
+}
 
+function renderHouseholds(){
+  const households=document.getElementById("households"); if(!households)return;
+  const used={};
+  households.innerHTML=(S.households||[]).map((h,i)=>{
+    let base=h.name||"Household";
+    used[base]=(used[base]||0)+1;
+    const display=used[base]>1?`${base} ${used[base]}`:base;
+    const members=(h.members||[]).map(x=>`<span class="tag">👤 ${esc(x)}</span>`).join("");
+    const shown=members||'<span class="small">Available home</span>';
+    return `<div class="house-card"><div class="house-icon">🏠</div><h3>${esc(display)}</h3><p>${shown}</p></div>`;
+  }).join("")||"<p>No households yet.</p>";
+}
 function render(){
 welcome.textContent=`Welcome, ${S.name}! 👑`; dayline.textContent=`Day ${S.day} • ${S.population} citizens • Your kingdom is growing naturally.`;
 stats.innerHTML=[["💰","Treasury",S.coins+" coins"],["😊","Happiness",S.happiness+"%"],["👥","Population",S.population],["🏠","Homes",S.houses],["🌾","Food",S.food],["🪵","Wood",S.wood],["🪨","Stone",S.stone]].map(x=>`<div class="stat"><b>${x[0]} ${x[1]}</b><br>${x[2]}</div>`).join("");
@@ -207,7 +253,7 @@ farm.innerHTML=`<div class="scene-art" aria-hidden="true">🌾 🐔 🐄 🥕 �
 resources.innerHTML=`<div class="visual-row"><span class="tag">🌾 Food ${S.food}</span><span class="tag">🪵 Wood ${S.wood}</span><span class="tag">🪨 Stone ${S.stone}</span></div>`;
 mail.innerHTML=(S.mail||[]).slice(-8).reverse().map(x=>`<div class="notice">${esc(x)}</div>`).join("")||"<p>No royal mail yet.</p>";
 requests.innerHTML=(S.requests||[]).length?S.requests.map((r,i)=>`<div class="card"><h3>Request: ${esc(r[0])}</h3><p>${esc(r[1])}</p><button class="primary" onclick="approve(${i})">Approve — unlock for free: ${esc(r[0])}</button><button onclick="decline(${i})">Decline for now</button></div>`).join(""):"<p>No requests right now. Citizens will bring new ideas as the kingdom grows.</p>";
-renderGarden(); renderRelationships(); renderHappinessActions(); renderIncome(); renderRoyalNeeds(); renderJobs(); save();
+renderGarden(); renderRelationships(); renderHappinessActions(); renderIncome(); renderRoyalNeeds(); renderJobs(); renderHouseholds(); save();
 }
 
 function renderRelationships(){
